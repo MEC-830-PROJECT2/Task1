@@ -7,8 +7,19 @@
 #include "IRremote.h"
 #include "IR.h"
 
+const int in1=9;
+const int in2=10;
+const int in3=11;
+const int in4=12;
+int k=0;
+int step_num=0;
+Servo servo;
+
+
+int RECEIVER2=13;
+
 //IR Receiver and Remote Initialization
-IRrecv irrecv(RECEIVER);     // create instance of 'irrecv'
+IRrecv irrecv(RECEIVER2);     // create instance of 'irrecv'
 decode_results results;      // create instance of 'decode_results'
 
 int revolutionSteps = 200;
@@ -25,6 +36,13 @@ void setup() {
   myStepper.setSpeed(100);
   Serial.println("Robot Start");
   delay(100);
+
+  pinMode(in1,OUTPUT);
+  pinMode(in2,OUTPUT);
+  pinMode(in3,OUTPUT);
+  pinMode(in4,OUTPUT);
+  servo.attach(7);
+  servo.write(90);
 }
 
 void loop() {
@@ -47,28 +65,45 @@ void loop() {
          //myStepper.step(100);
           previousCount = 0;
           Serial.println("Move Forward");
-          task_1();
+          while(k<500){
+            OneStep(true);
+            delay(2);
+            k=k+1;
+          }
+          k=0;
+          //task_1();
+          
           }
         //Move Backwards  
         if(results.value == 0xFFA857){
           //myStepper.step(-100);
           previousCount = 0;
           Serial.println("Move Backwards");
-          task_1();
+          //task_1();
+          while(k<500){
+            OneStep(false);
+            delay(2);
+            k=k+1;
+          }
+          k=0;
           }
         //Move Right
         if(results.value == 0xFFC23D){
           Serial.println("Moving Right");
-          previousCount += 1;
-          task_1();
+          servo.write(135);
+          delay(10);
           }
         //Move Left
         if(results.value == 0xFF22DD){
           Serial.println("Moving Left");
-          previousCount -= 1;
-          task_1();
+          servo.write(45);
+          delay(10);
           }
-        
+        if(results.value == 0xFF02FD){
+          Serial.println("Straighten Wheel");
+          servo.write(90);
+          delay(10);
+          }
         tmpValue = results.value;
       }
       else if(REPEAT==i)
@@ -81,6 +116,72 @@ void loop() {
   }
   
 }
+
+void OneStep(bool dir){
+  if(dir){
+    switch(step_num){
+      case 0:
+      digitalWrite(in1,HIGH);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,LOW);
+      break;
+      case 1:
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,HIGH);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,LOW);
+      break;
+      case 2:
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,HIGH);
+      digitalWrite(in4,LOW);
+      break;
+      case 3:
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,HIGH);
+      break;
+    }
+  }
+  else{
+      switch(step_num){
+      case 0:
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,HIGH);
+      break;
+      case 1:
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,HIGH);
+      digitalWrite(in4,LOW);
+      break;
+      case 2:
+      digitalWrite(in1,LOW);
+      digitalWrite(in2,HIGH);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,LOW);
+      break;
+      case 3:
+      digitalWrite(in1,HIGH);
+      digitalWrite(in2,LOW);
+      digitalWrite(in3,LOW);
+      digitalWrite(in4,LOW);
+      break;
+    }
+  }
+  step_num++;
+  if(step_num>3){
+    step_num=0;
+  }
+}
+
+
+
 
 void task_1(){
   Serial.print("Previous Count =");
