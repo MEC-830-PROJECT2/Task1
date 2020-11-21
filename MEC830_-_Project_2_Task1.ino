@@ -62,41 +62,26 @@ void loop() {
       {
         //Move Forward
         if(results.value == 0xFF629D){
-         //myStepper.step(100);
-          previousCount = 0;
           Serial.println("Move Forward");
-          while(k<500){
-            OneStep(true);
-            delay(2);
-            k=k+1;
-          }
-          k=0;
-          //task_1();
-          
+          FWD();
+          delay(10);
           }
         //Move Backwards  
         if(results.value == 0xFFA857){
-          //myStepper.step(-100);
-          previousCount = 0;
           Serial.println("Move Backwards");
-          //task_1();
-          while(k<500){
-            OneStep(false);
-            delay(2);
-            k=k+1;
-          }
-          k=0;
+          REV();
+          delay(10);
           }
         //Move Right
         if(results.value == 0xFFC23D){
           Serial.println("Moving Right");
-          servo.write(135);
+          servo.write(115);
           delay(10);
           }
         //Move Left
         if(results.value == 0xFF22DD){
           Serial.println("Moving Left");
-          servo.write(45);
+          servo.write(65);
           delay(10);
           }
         if(results.value == 0xFF02FD){
@@ -106,16 +91,34 @@ void loop() {
           }
         tmpValue = results.value;
       }
-      else if(REPEAT==i)
-      {
-        results.value = tmpValue;
-        Serial.println("Hi Daniel");
-      }
+   
     }
     irrecv.resume(); // receive the next value
   }
   
 }
+
+void FWD(){
+    while(k<2048){
+    OneStep(true);
+    delay(2);
+    k=k+1;
+    }
+    k=0;
+    Serial.println("FWD");
+}
+
+void REV(){
+    while(k<2048){
+    OneStep(false);
+    delay(2);
+    k=k+1;
+    }
+    k=0;
+    Serial.println("REV");
+}
+
+
 
 void OneStep(bool dir){
   if(dir){
