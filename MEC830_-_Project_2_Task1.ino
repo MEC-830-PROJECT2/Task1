@@ -11,9 +11,27 @@ const int in1=9;
 const int in2=10;
 const int in3=11;
 const int in4=12;
+
+const int trigPin=6;
+const int echoPin=5;
+
+
 int k=0;
 int step_num=0;
 Servo servo;
+int adj=5;
+int ang1=83;
+int ang2=83;
+int Cangle;
+
+//Ultrasonic Sensor
+
+
+long duration;
+double distance;
+
+
+
 
 
 int RECEIVER2=13;
@@ -41,12 +59,14 @@ void setup() {
   pinMode(in2,OUTPUT);
   pinMode(in3,OUTPUT);
   pinMode(in4,OUTPUT);
+  pinMode(trigPin,OUTPUT);
+  pinMode(echoPin,INPUT);
   servo.attach(7);
-  servo.write(90);
+  servo.write(83);
 }
 
 void loop() {
-
+ // Dist();
   //Receives input from remote
   int tmpValue;
   if (irrecv.decode(&results)) // have we received an IR signal?
@@ -75,19 +95,32 @@ void loop() {
         //Move Right
         if(results.value == 0xFFC23D){
           Serial.println("Moving Right");
-          servo.write(115);
+          ang2=ang2+adj;
+          if (ang2>150){
+            ang2=150;
+          }
+          Serial.println(ang2);
+          servo.write(ang2);
           delay(10);
           }
         //Move Left
         if(results.value == 0xFF22DD){
           Serial.println("Moving Left");
-          servo.write(65);
+          ang1=ang1-adj;
+          if (ang1<30){
+            ang1=30;
+          }
+          servo.write(ang1);
           delay(10);
           }
         if(results.value == 0xFF02FD){
-          Serial.println("Straighten Wheel");
-          servo.write(90);
+          Serial.println("Straighten Wheel"); 
+          servo.write(83);
           delay(10);
+//          ang1=65;
+//          ang2=115;
+          ang1=83;
+          ang2=83;
           }
         tmpValue = results.value;
       }
@@ -95,11 +128,12 @@ void loop() {
     }
     irrecv.resume(); // receive the next value
   }
+
   
 }
 
 void FWD(){
-    while(k<2048){
+    while(k<2048/2){
     OneStep(true);
     delay(2);
     k=k+1;
@@ -109,7 +143,7 @@ void FWD(){
 }
 
 void REV(){
-    while(k<2048){
+    while(k<2048/2){
     OneStep(false);
     delay(2);
     k=k+1;
@@ -183,6 +217,23 @@ void OneStep(bool dir){
   }
 }
 
+
+void Dist(){
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin,LOW);
+
+  duration=pulseIn(echoPin,HIGH);
+  distance=duration*0.034/2;
+  Serial.println(distance);
+  if (distance ==1196){
+    distance=0;
+    
+  }
+}
 
 
 
