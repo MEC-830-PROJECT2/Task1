@@ -30,10 +30,6 @@ int Cangle;
 long duration;
 double distance;
 
-
-
-
-
 int RECEIVER2=13;
 
 //IR Receiver and Remote Initialization
@@ -101,6 +97,7 @@ void loop() {
           }
           Serial.println(ang2);
           servo.write(ang2);
+          ang1 = 83;
           delay(10);
           }
         //Move Left
@@ -111,6 +108,7 @@ void loop() {
             ang1=30;
           }
           servo.write(ang1);
+          ang2 = 83;
           delay(10);
           }
         if(results.value == 0xFF02FD){
